@@ -4,6 +4,10 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.List;
+
 public final class NetworkUtils {
 
 
@@ -33,5 +37,31 @@ public final class NetworkUtils {
             }
         }
         return false;
+    }
+
+    public static String getMACAddress(String interfaceName) {
+        try {
+            List<NetworkInterface> networkList = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : networkList) {
+                if (interfaceName != null && !intf.getName().equalsIgnoreCase(interfaceName)) {
+                    continue;
+                }
+                byte[] mac = intf.getHardwareAddress();
+                if (mac == null) {
+                    return "";
+                }
+                StringBuilder buf = new StringBuilder();
+                for (byte aMac : mac) {
+                    buf.append(String.format("%02X:", aMac));
+                }
+                if (buf.length() > 0) {
+                    buf.deleteCharAt(buf.length() - 1);
+                }
+                return buf.toString();
+            }
+        } catch (Exception ex) {
+            LogUtils.e("dzy","",ex);
+        }
+        return "";
     }
 }
